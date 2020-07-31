@@ -1,0 +1,25 @@
+version: 2.1
+jobs:
+  compile:
+   docker:
+      - image: ubuntu:20.04
+   steps:
+      - run:
+          command: |
+           apt-get -y update && apt-get -y upgrade && DEBIAN_FRONTEND=noninteractive apt-get -y install bc build-essential zip gcc clang libc6 curl libstdc++6 git wget libssl-dev zstd python python3 python3-pip openjdk-11-jdk openjdk-11-jre gcc-aarch64-linux-gnu gcc-arm-linux-gnueabi
+           git clone --depth=1 https://github.com/FedShat/msm-4.4 -b $CIRCLE_BRANCH ~/build/msm-4.4
+           git clone https://github.com/AlpacaGang/PublishBot ~/build/bot
+           cd ~/build/bot
+           pip3 install -r requirements.txt
+           cd ..
+           wget https://raw.githubusercontent.com/baalajimaestro/AnyKernel3/master/zipsigner-4.0.jar -O ~/zipsigner-4.0.jar
+           git clone https://github.com/kdrag0n/proton-clang ~/build/proton-clang --depth=1
+           export PATH="$HOME/build/proton-clang/bin:$PATH"
+           git clone https://github.com/AlpacaGang/AnyKernel3 ~/build/AK3
+           cd msm-4.4
+           python3 ../bot/kernel.py
+workflows:
+  version: 2.1
+  cooking:
+    jobs:
+      - compile
